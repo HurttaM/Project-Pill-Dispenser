@@ -58,7 +58,7 @@ int main() {
 
         // if button pressed, calibrates itself
         if (!calibration_done && pressed(BUTTON1)) {
-            motor_steps = calibrate(); // the hole is not in just the right place now, has to be fixed
+            motor_steps = calibrate();
             calibration_done = true;
             gpio_put(LED1, true);
         }
