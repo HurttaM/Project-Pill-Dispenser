@@ -6,6 +6,9 @@
 #include "pico/stdlib.h"
 #include "iuart.h"
 
+#define BUTTON1 8
+#define BUTTON2 9
+#define BUTTON3 7
 #define LED1 20
 #define OPTOFORK 28
 #define STEPM1 2
@@ -29,8 +32,9 @@
 
 extern int steps[8][4];
 
+bool pressed(int button);
 void set_up_gpio(void);
-void step_motor(int index);
+void step_motor(void);
 int run_motor(int run_times, int motor_steps);
 int calibrate(void);
 
