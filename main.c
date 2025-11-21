@@ -54,6 +54,22 @@ void setup() {
     //gpio_set_irq_enabled_with_callback(MOTOR_REV_DET, GPIO_IRQ_EDGE_FALL, true, falling);
 }
 
+
+/*
+Projektin (vähimmäis)tavoitteet:
+- Dispenser kalibroidaan, se kääntyy 30 sekunnin välein, piezo-sensori varmistaa, että pilleri on tippunut
+- Dispenserin tila säilytetään in non-volatile memory, jotta sen tila säilyy käynnistämisen ja sammuttamisen yli, tila kommunikoidaan
+serverille käyttäen LoRaWANia (tämä olikin more advanced)
+
+Logiikka:
+- Kun laitetaan päälle, LED vilkkuu ja odottaa napin painamista.
+- Kun nappia painetaan, dispenser kalibroituu kääntymällä vähintään yhden kokonaisen kierroksen ja sitten pysähtyy oikealle kohdalle suhteessa aukkoon
+- Kalibroinnin jälkeen LED päällä ennen kuin painetaan toista nappia
+- Napin painalluksen jälkeen jakaa lääkkeen joka 30 sekunti napin painamisesta eteenpäin
+- Piezolla tarkistetaan että lääke on tippunut, jos ei, LED vilkkuu viisi kertaa
+- Kun kaikki lääkkeet jaettu, takaisin alkuun (LED vilkkuu, odottaa napin painallusta ja kalibrointia)
+*/
+
 int main() {
 
     const uint led_pin = 22;
@@ -71,7 +87,7 @@ int main() {
 
         // Blink LED
         printf("Blinking! %u\r\n", ++count);
-        gpio_put(led_pin, true);
+        // gpio_put(led_pin, true);
         sleep_ms(1000);
         gpio_put(led_pin, false);
         sleep_ms(1000);
