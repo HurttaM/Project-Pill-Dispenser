@@ -25,6 +25,7 @@ add_compile_options(-Wall
 add_executable(${PROJECT_NAME} 
     main.c
         iuart.c
+        pill-dispenser.c
 )
 
 # Create map/bin/hex/uf2 files
