@@ -1,0 +1,86 @@
+int main() {
+
+    stdio_init_all();
+    set_up_gpio();
+
+    gpio_init(LED1);
+    gpio_set_dir(LED1, GPIO_OUT);
+
+    // Buttons (your existing setup)
+    gpio_init(BUTTON1);
+    gpio_set_dir(BUTTON1, GPIO_IN);
+    gpio_pull_up(BUTTON1);
+
+    gpio_init(BUTTON2);
+    gpio_set_dir(BUTTON2, GPIO_IN);
+    gpio_pull_up(BUTTON2);
+
+    gpio_init(BUTTON3);
+    gpio_set_dir(BUTTON3, GPIO_IN);
+    gpio_pull_up(BUTTON3);
+
+    dispenser_state_t state = STATE_WAIT_FOR_CALIB_BUTTON;
+    int steps_per_rev = 0;
+
+    while (true) {
+
+        switch(state) {
+
+            // STATE 1: BLINK LED & WAIT FOR BUTTON PRESS
+            case STATE_WAIT_FOR_CALIB_BUTTON:
+                gpio_put(LED1, 1);
+                sleep_ms(100);
+                gpio_put(LED1, 0);
+                sleep_ms(100);
+
+                if (pressed(BUTTON1)) {
+                    state = STATE_CALIBRATE;
+                }
+                break;
+
+
+
+            // STATE 2: CALIBRATION
+            case STATE_CALIBRATE:
+                steps_per_rev = calibrate();   // Uses your LAB3 logic
+                gpio_put(LED1, 1);             // LED ON = ready
+                state = STATE_READY;
+                break;
+
+
+
+            // STATE 3: READY STATE
+            case STATE_READY:
+                // LED is already ON
+
+                // Wait for button 2 or 3
+                if (pressed(BUTTON2) || pressed(BUTTON3)) {
+                    gpio_put(LED1, 0);    // LED off during dispensing
+                    state = STATE_DISPENSE;
+                }
+                break;
+
+
+
+            // STATE 4: DISPENSING STATE
+            case STATE_DISPENSE:
+                for (int i = 0; i < 7; i++) {
+
+                    run_motor(1, steps_per_rev);  // 1/8 turn
+                    sleep_ms(5000);                // 30 sec normally
+                    // Piezo check will go here later
+                }
+                state = STATE_RESET;
+                break;
+
+
+            // STATE 5: RESET STATE
+            case STATE_RESET:
+                gpio_put(LED1, 0);
+                sleep_ms(200);
+
+                state = STATE_WAIT_FOR_CALIB_BUTTON;
+                break;
+        }
+    }
+}
