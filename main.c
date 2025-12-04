@@ -28,7 +28,7 @@ int main() {
     int state = 1;
     int steps = 4096;
     uint32_t t = time_us_32();
-    printf("loaded\n");
+    printf(">> Program started, press middle button to begin <<\n");
     uint count = 0;
 
     step_current = 0;
