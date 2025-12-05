@@ -38,7 +38,6 @@ int main() {
     piezo_detection = false;
     alarm_id = 0;
     calibration_falling = false;
-    void handler(uint gpio, uint32_t event_mask);
     queue_init(&events, sizeof(int), 100);
 
     gpio_set_irq_enabled_with_callback(PIEZO_SENS, GPIO_IRQ_EDGE_FALL, true, &handler);
@@ -46,15 +45,12 @@ int main() {
     while (true) {
         switch (state) {
 
-            case 1:
-                gpio_put(LED1, 1);
-                sleep_ms(100);
-                gpio_put(LED1, 0);
-                sleep_ms(100);
-
+        case 1:
+                toggle_led();
                 if (pressed(BUTT1)) {
                     state = 2;
                 }
+                sleep_ms(100);
                 break;
 
             case 2:
@@ -73,7 +69,7 @@ int main() {
                 }
                 break;
 
-            case 4: // this works other than the no srop detected and drop detected lag a bit, sometimes drop detected comes after the next dropping #x print
+            case 4: // detects fine with my device
                 if (pressed(BUTT0)) {
                     int value;
                     while (queue_try_remove(&events, &value));
@@ -83,11 +79,9 @@ int main() {
                             printf("dropping #%d\n", counter+1);
                         }
                         turn(steps/DISPENSER_SLOTS, true);
-                        sleep_ms(30);
+                        sleep_ms(30); // check time
                         int value;
-                        while (!queue_try_remove(&events, &value)) { // tää laittaa ekan aina tänne eli joku alustava juttu siellä on mitä en osaa tyhjää, korjatkaa jos osaatte
-                        // muuten ainakin mulla tunnistaa atm
-                            printf("not dropped!\n");
+                        while (!queue_try_remove(&events, &value)) {
                             indicate_miss();
                             piezo_detection = true;
                             break;

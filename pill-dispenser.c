@@ -11,27 +11,13 @@ const int sequences[MOTOR_STEPS][4] = {
     {1, 0, 0, 1}
 };
 
-int64_t debounce_callback(alarm_id_t id, void *user_data) {
-    uint pin = (uint)(uintptr_t)user_data;
-    if (pin == PIEZO_SENS) {
-        piezo_detection = true;
-    }
-    alarm_id = 0;
-    return 0;
-}
-
-void interrupt_callback(uint gpio, uint32_t event_mask) {
-    if (gpio == OPTO_FORK) {
-        calibration_falling++;
-        if (calibration_falling == 1) step_current = 0;
+int toggle_led(void) {
+    if (gpio_get(LED1) == 0) {
+        gpio_put(LED1, 1);
     } else {
-        if (alarm_id != 0) {
-            cancel_alarm(alarm_id);
-        }
-        alarm_id = add_alarm_in_ms(DEBOUNCE_TIMER, debounce_callback, (void *)(uintptr_t)gpio, false);
+        gpio_put(LED1, 0);
     }
 }
-
 //engaging the stepper motor step
 void motor_step(void) {
     static int step_index = 0;
@@ -54,10 +40,8 @@ void turn(const int step_count, const bool clockwise) {
 }
 
 void indicate_miss() {
-    for (int i = 0; i < 5; i++) {
-        gpio_put(LED1, 1);
-        sleep_ms(100);
-        gpio_put(LED1, 0);
+    for (int i = 0; i < 10; i++) {
+        toggle_led();
         sleep_ms(100);
     }
     printf("no drop\n");
@@ -166,7 +150,7 @@ void setup() {
     gpio_pull_up(BUTT2);
     gpio_pull_up(OPTO_FORK);
     gpio_pull_up(PIEZO_SENS);
-    gpio_set_irq_enabled_with_callback(OPTO_FORK, GPIO_IRQ_EDGE_FALL, true, interrupt_callback);
+    gpio_set_irq_enabled_with_callback(OPTO_FORK, GPIO_IRQ_EDGE_FALL, true, handler);
     gpio_set_irq_enabled(BUTT0, GPIO_IRQ_EDGE_FALL, true);
     gpio_set_irq_enabled(PIEZO_SENS, GPIO_IRQ_EDGE_FALL, true);
 }
