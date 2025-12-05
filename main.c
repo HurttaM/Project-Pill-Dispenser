@@ -1,4 +1,5 @@
 #include "pill-dispenser.h"
+#include "pico/util/queue.h"
 
 /*
 Projektin (vähimmäis)tavoitteet:
@@ -22,6 +23,7 @@ volatile int calibration_falling;
 volatile bool piezo_detection;
 volatile alarm_id_t alarm_id;
 volatile uint pending_button;
+queue_t events;
 
 int main() {
     setup();
@@ -36,7 +38,10 @@ int main() {
     piezo_detection = false;
     alarm_id = 0;
     calibration_falling = false;
+    void handler(uint gpio, uint32_t event_mask);
+    queue_init(&events, sizeof(int), 100);
 
+    gpio_set_irq_enabled_with_callback(PIEZO_SENS, GPIO_IRQ_EDGE_FALL, true, &handler);
 
     while (true) {
         switch (state) {
@@ -70,31 +75,30 @@ int main() {
 
             case 4: // this works other than the no srop detected and drop detected lag a bit, sometimes drop detected comes after the next dropping #x print
                 if (pressed(BUTT0)) {
-                    printf("started dispensing\n");
-
-                    for (int i = 0; i < DISPENSER_SLOTS;) {
-                        if (i < 7) printf("dropping #%d\n", i+1);
-                        t = time_us_32();
-                        bool triggered = false;
-                        turn(steps/DISPENSER_SLOTS, true);
-                        uint32_t sensor_wait = time_us_32();
-                        while (time_us_32() - t <= TURN_TIME * 1000000 && i < DISPENSER_SLOTS - 1) {
-                            if (time_us_32() - sensor_wait > DETECTION_TIMER && !triggered && !piezo_detection) {
-                                indicate_miss();
-                                break;
-                            } else if (piezo_detection && !triggered) {
-                                printf("drop detected\n");
-                                piezo_detection = false;
-                                triggered = true;
-                            }
+                    int value;
+                    while (queue_try_remove(&events, &value));
+                    int counter;
+                    for (counter = 0; counter < DISPENSER_SLOTS; counter++) {
+                        if (counter < 7) {
+                            printf("dropping #%d\n", counter+1);
                         }
-                        i++;
-                        sleep_ms(1000);
+                        turn(steps/DISPENSER_SLOTS, true);
+                        sleep_ms(30);
+                        int value;
+                        while (!queue_try_remove(&events, &value)) { // tää laittaa ekan aina tänne eli joku alustava juttu siellä on mitä en osaa tyhjää, korjatkaa jos osaatte
+                        // muuten ainakin mulla tunnistaa atm
+                            printf("not dropped!\n");
+                            indicate_miss();
+                            piezo_detection = true;
+                            break;
+                        }
+                        sleep_ms(5000);
+                        while (queue_try_remove(&events, &value));
+                        sleep_ms(10);
                     }
                     printf("all slots emptied\n");
                     state = 1;
                 }
-                break;
         }
     }
     return 0;

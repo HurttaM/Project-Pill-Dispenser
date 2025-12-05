@@ -4,6 +4,7 @@
 #include <stdio.h>
 #include "pico/stdlib.h"
 #include "hardware/pwm.h"
+#include "pico/util/queue.h"
 
 
 #define BUTT0 9
@@ -38,6 +39,7 @@ extern volatile int calibration_falling;
 extern volatile bool piezo_detection;
 extern volatile alarm_id_t alarm_id;
 extern volatile uint pending_button;
+extern queue_t events;
 
 int64_t debounce_callback(alarm_id_t id, void *user_data);
 void interrupt_callback(uint gpio, uint32_t event_mask);
@@ -47,5 +49,6 @@ void indicate_miss(void);
 int calibrate(void);
 bool pressed(int button);
 void setup(void);
+void handler(uint gpio, uint32_t event_mask);
 
 #endif //DOSETTI_PILL_DISPENSER_H

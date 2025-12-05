@@ -111,6 +111,14 @@ int calibrate(void) {
     return motor_steps;
 }
 
+void handler(uint gpio, uint32_t event_mask) {
+    int value = 1;
+    if (gpio_get(PIEZO_SENS) == 0) {
+        value = 0;
+    }
+    queue_try_add(&events, &value);
+}
+
 bool pressed(int button) {
     int press = 0;
     int release = 0;
