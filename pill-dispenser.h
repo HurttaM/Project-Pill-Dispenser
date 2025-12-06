@@ -34,15 +34,8 @@
 #define BLINK_COUNT 5
 
 extern int step_current;
-extern bool led_state;
-extern volatile int calibration_falling;
-extern volatile bool piezo_detection;
-extern volatile alarm_id_t alarm_id;
-extern volatile uint pending_button;
 extern queue_t events;
 
-int64_t debounce_callback(alarm_id_t id, void *user_data);
-void interrupt_callback(uint gpio, uint32_t event_mask);
 void motor_step(void);
 void turn(const int step_count, const bool clockwise);
 void indicate_miss(void);
@@ -50,5 +43,6 @@ int calibrate(void);
 bool pressed(int button);
 void setup(void);
 void handler(uint gpio, uint32_t event_mask);
+int toggle_led(void);
 
 #endif //DOSETTI_PILL_DISPENSER_H

@@ -39,6 +39,7 @@ void turn(const int step_count, const bool clockwise) {
     }
 }
 
+// blinks led 5 times if no pill dropped, prints "no drop"
 void indicate_miss() {
     for (int i = 0; i < 10; i++) {
         toggle_led();
