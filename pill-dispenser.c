@@ -41,11 +41,11 @@ void turn(const int step_count, const bool clockwise) {
 
 // blinks led 5 times if no pill dropped, prints "no drop"
 void indicate_miss() {
+    printf("no drop\n");
     for (int i = 0; i < 10; i++) {
         toggle_led();
         sleep_ms(100);
     }
-    printf("no drop\n");
 }
 
 bool button_pressed(uint pin) { //debounce for pull_up button

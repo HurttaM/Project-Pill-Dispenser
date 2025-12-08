@@ -86,7 +86,9 @@ int main() {
                             break;
                         }
                         // what time between dispenses
-                        sleep_ms(5000);
+                        if (counter < DISPENSER_SLOTS - 1) {
+                            sleep_ms(5000);
+                        }
                     }
                     printf("all slots emptied\n");
                     state = 1;
