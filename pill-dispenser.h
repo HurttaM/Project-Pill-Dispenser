@@ -8,7 +8,6 @@
 #include "hardware/pwm.h"
 #include "pico/util/queue.h"
 
-
 #define BUTT0 9
 #define BUTT1 8
 #define LED1 20
@@ -19,7 +18,7 @@
 #define MOTOR_3 6
 #define MOTOR_4 13
 #define MOTOR_STEPS 8
-#define TIME_BETWEEN_DISPENSES 5000
+#define TIME_BETWEEN_DISPENSES 30000
 #define DISPENSER_SLOTS 8
 #define CALIBRATION_OFFSET 135
 #define BLINK_COUNT 5

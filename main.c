@@ -68,11 +68,12 @@ int main() {
                             break;
                         }
                         // what time between dispenses
-                        if (counter < DISPENSER_SLOTS - 1) {
+                        if (counter < DISPENSER_SLOTS - 2) {
                             sleep_ms(TIME_BETWEEN_DISPENSES);
                         }
                     }
-                    printf("All slots emptied! Press button to start dispensing again.\n");
+                    sleep_ms(5000);
+                    printf("All slots emptied! Press button to start calibrating again.\n");
                     gpio_put(LED1, 1);
                     state = 1; // back to dispensing
                 }
