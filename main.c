@@ -18,7 +18,7 @@ int main() {
         switch (state) {
 
         case 1:
-                // blin led
+                // blink led
                 toggle_led();
                 if (pressed(BUTT1)) {
                     state = 2;
@@ -42,8 +42,7 @@ int main() {
                 }
                 break;
 
-            case 4: // detects fine with my device
-                gpio_put(LED1, 1);
+            case 4:
                 if (pressed(BUTT0)) {
                     gpio_put(LED1, 0);
                     int value;
@@ -75,7 +74,8 @@ int main() {
                         }
                     }
                     printf("All slots emptied! Press button to start dispensing again.\n");
-                    state = 4;
+                    gpio_put(LED1, 1);
+                    state = 4; // back to dispensing
                 }
         }
     }
