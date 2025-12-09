@@ -60,7 +60,7 @@ int main() {
                             motor_step();
                             sleep_ms(1);
                         }
-                        sleep_ms(30); // check how to do the timer thing
+                        sleep_ms(PIEZO_TIMER); // check how to do the timer thing
 
                         // if there is no falling edge detected during the time via interrupt, no drop detected
                         while (!queue_try_remove(&events, &value)) {

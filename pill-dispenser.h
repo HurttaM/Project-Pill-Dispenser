@@ -22,7 +22,7 @@
 #define DISPENSER_SLOTS 8
 #define CALIBRATION_OFFSET 135
 #define BLINK_COUNT 5
-#define PIEZO_TIMER 20
+#define PIEZO_TIMER 100
 
 extern int step_current;
 extern queue_t events;
