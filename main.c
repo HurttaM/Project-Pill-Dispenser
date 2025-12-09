@@ -8,7 +8,6 @@ int main() {
     int state = 1;
     int steps;
     printf(">> Program started, press middle button to begin <<\n");
-    uint count = 0;
 
     step_current = 0;
     queue_init(&events, sizeof(int), 100);
@@ -19,7 +18,7 @@ int main() {
         switch (state) {
 
         case 1:
-                // blink led
+                // blin led
                 toggle_led();
                 if (pressed(BUTT1)) {
                     state = 2;
@@ -28,23 +27,25 @@ int main() {
                 break;
 
             case 2:
-                // calibrate, led on for next step
                 steps = calibrate();
+                // led on for next step
                 gpio_put(LED1, 1);
                 state = 3;
                 break;
 
             case 3:
-                // LED is already ON, Wait for button press (closest to led)
+                // LED is already ON
+                // Wait for button press (closest to led)
                 if (pressed(BUTT0)) {
-                    gpio_put(LED1, 0);    // LED default off during dispensing
+                    gpio_put(LED1, 0);    // LED off during dispensing
                     state = 4;
                 }
                 break;
 
-            case 4:
-                // dispense pills
+            case 4: // detects fine with my device
+                gpio_put(LED1, 1);
                 if (pressed(BUTT0)) {
+                    gpio_put(LED1, 0);
                     int value;
 
                     // dispensing pills
@@ -61,7 +62,7 @@ int main() {
                             motor_step();
                             sleep_ms(1);
                         }
-                        sleep_ms(PIEZO_TIMER);
+                        sleep_ms(30); // check how to do the timer thing
 
                         // if there is no falling edge detected during the time via interrupt, no drop detected
                         while (!queue_try_remove(&events, &value)) {
@@ -70,12 +71,11 @@ int main() {
                         }
                         // what time between dispenses
                         if (counter < DISPENSER_SLOTS - 1) {
-                            sleep_ms(TIME_BETWEEN_DISPENSES);
+                            sleep_ms(5000);
                         }
                     }
                     printf("All slots emptied! Press button to start dispensing again.\n");
-                    sleep_ms(2000);
-                    state = 1;
+                    state = 4;
                 }
         }
     }

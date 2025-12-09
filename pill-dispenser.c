@@ -1,6 +1,5 @@
 #include "pill-dispenser.h"
 
-// for stepper motor
 const int sequences[MOTOR_STEPS][4] = {
     {1, 0, 0, 0},
     {1, 1, 0, 0},
@@ -12,7 +11,6 @@ const int sequences[MOTOR_STEPS][4] = {
     {1, 0, 0, 1}
 };
 
-// toggles led
 int toggle_led(void) {
     if (gpio_get(LED1) == 0) {
         gpio_put(LED1, 1);
@@ -20,7 +18,6 @@ int toggle_led(void) {
         gpio_put(LED1, 0);
     }
 }
-
 //engaging the stepper motor step
 void motor_step(void) {
     static int step_index = 0;
@@ -29,6 +26,17 @@ void motor_step(void) {
     gpio_put(MOTOR_2, sequences[step_index][1]);
     gpio_put(MOTOR_3, sequences[step_index][2]);
     gpio_put(MOTOR_4, sequences[step_index][3]);
+}
+
+//driving the stepper motor
+void turn(const int step_count, const bool clockwise) {
+    int step_direction = clockwise ? 1 : -1;
+    static int current_step = 0;
+    for (int i = 0; i < step_count; i++) {
+        current_step = (current_step + step_direction + MOTOR_STEPS) % MOTOR_STEPS;
+        motor_step();
+        sleep_ms(1);
+    }
 }
 
 // blinks led 5 times if no pill dropped, prints "no drop"
@@ -40,7 +48,23 @@ void indicate_miss() {
     }
 }
 
-// calibrate
+bool button_pressed(uint pin) { //debounce for pull_up button
+    int press = 0;
+    int release = 0;
+    while (press < 3 && release < 3) {
+        if (!gpio_get(pin)) {
+            press++;
+            release = 0;
+        } else {
+            release++;
+            press = 0;
+        }
+        sleep_ms(10);
+    }
+    if (press > release) return true;
+    return false;
+}
+
 int calibrate(void) {
     printf(">> Calibrating... <<\n");
     int motor_steps = 0;
@@ -65,14 +89,13 @@ int calibrate(void) {
             printf("Step count of a full revolution: %d\n", motor_steps);
         }
     }
-    for (int i = 0; i < CALIBRATION_OFFSET; i++) { // offsetting the disparency between the hole and the motor
+    for (int i = 0; i < 140; i++) { // offsetting the about 130 step disparency between the hole and the motor
         motor_step();
         sleep_ms(1);
     }
     return motor_steps;
 }
 
-// piezo sens interrupt handler
 void handler(uint gpio, uint32_t event_mask) {
     int value = 1;
     if (gpio_get(PIEZO_SENS) == 0) {
@@ -81,7 +104,6 @@ void handler(uint gpio, uint32_t event_mask) {
     queue_try_add(&events, &value);
 }
 
-// debounce for button
 bool pressed(int button) {
     int press = 0;
     int release = 0;
@@ -101,7 +123,6 @@ bool pressed(int button) {
     return false;
 }
 
-// initial setup with the hardware
 void setup() {
     stdio_init_all();
     gpio_init(LED1);
@@ -113,6 +134,7 @@ void setup() {
     gpio_init(MOTOR_4);
     gpio_init(BUTT0);
     gpio_init(BUTT1);
+    gpio_init(BUTT2);
     gpio_init(OPTO_FORK);
     gpio_init(PIEZO_SENS);
     gpio_set_dir(MOTOR_1, true);
@@ -123,9 +145,13 @@ void setup() {
     gpio_set_dir(PIEZO_SENS, GPIO_IN);
     gpio_set_dir(BUTT0, GPIO_IN);
     gpio_set_dir(BUTT1, GPIO_IN);
+    gpio_set_dir(BUTT2, GPIO_IN);
     gpio_pull_up(BUTT0);
     gpio_pull_up(BUTT1);
+    gpio_pull_up(BUTT2);
     gpio_pull_up(OPTO_FORK);
     gpio_pull_up(PIEZO_SENS);
     gpio_set_irq_enabled_with_callback(OPTO_FORK, GPIO_IRQ_EDGE_FALL, true, handler);
+    gpio_set_irq_enabled(BUTT0, GPIO_IRQ_EDGE_FALL, true);
+    gpio_set_irq_enabled(PIEZO_SENS, GPIO_IRQ_EDGE_FALL, true);
 }
