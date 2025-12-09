@@ -75,7 +75,7 @@ int calibrate(void) {
 // handler for piezo sensor detection
 void handler(uint gpio, uint32_t event_mask) {
     int value = 1;
-    if (gpio_get(PIEZO_SENS) == 0) {
+    if (gpio_get(PIEZO_SENS) == 0) { // note to self: gpio_get not actually necessary here
         value = 0;
     }
     queue_try_add(&events, &value);

@@ -27,15 +27,14 @@ int main() {
                 break;
 
             case 2:
+                // calibrate and put led on
                 steps = calibrate();
-                // led on for next step
                 gpio_put(LED1, 1);
                 state = 3;
                 break;
 
             case 3:
-                // LED is already ON
-                // Wait for button press (closest to led)
+                // LED is already ON, wait for button press (closest to led)
                 if (pressed(BUTT0)) {
                     state = 4;
                 }
@@ -60,22 +59,25 @@ int main() {
                             motor_step();
                             sleep_ms(1);
                         }
-                        sleep_ms(PIEZO_TIMER); // check how to do the timer thing
+                        sleep_ms(PIEZO_TIMER); // 100 ms should work
 
                         // if there is no falling edge detected during the time via interrupt, no drop detected
                         while (!queue_try_remove(&events, &value)) {
                             indicate_miss();
                             break;
                         }
-                        // what time between dispenses
+
+                        // currently put for 5 seconds between doses for testing and demoing
                         if (counter < DISPENSER_SLOTS - 2) {
                             sleep_ms(TIME_BETWEEN_DISPENSES);
                         }
                     }
                     sleep_ms(5000);
                     printf("All slots emptied! Press button to start calibrating again.\n");
+
+                    // led on and back to beginning
                     gpio_put(LED1, 1);
-                    state = 1; // back to dispensing
+                    state = 1;
                 }
         }
     }
