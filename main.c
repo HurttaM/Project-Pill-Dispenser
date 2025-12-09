@@ -37,7 +37,6 @@ int main() {
                 // LED is already ON
                 // Wait for button press (closest to led)
                 if (pressed(BUTT0)) {
-                    gpio_put(LED1, 0);    // LED off during dispensing
                     state = 4;
                 }
                 break;
@@ -70,7 +69,7 @@ int main() {
                         }
                         // what time between dispenses
                         if (counter < DISPENSER_SLOTS - 1) {
-                            sleep_ms(5000);
+                            sleep_ms(TIME_BETWEEN_DISPENSES);
                         }
                     }
                     printf("All slots emptied! Press button to start dispensing again.\n");
