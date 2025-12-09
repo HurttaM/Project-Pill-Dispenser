@@ -1,4 +1,4 @@
-// iuart files not used in the project, just here for reference
+// iuart files not used in the project, just in the folder for reference
 
 #ifndef DOSETTI_PILL_DISPENSER_H
 #define DOSETTI_PILL_DISPENSER_H
@@ -18,7 +18,7 @@
 #define MOTOR_3 6
 #define MOTOR_4 13
 #define MOTOR_STEPS 8
-#define TIME_BETWEEN_DISPENSES 30000
+#define TIME_BETWEEN_DISPENSES 5000
 #define DISPENSER_SLOTS 8
 #define CALIBRATION_OFFSET 135
 #define BLINK_COUNT 5
