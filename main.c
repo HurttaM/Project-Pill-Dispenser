@@ -74,7 +74,7 @@ int main() {
                     }
                     printf("All slots emptied! Press button to start dispensing again.\n");
                     gpio_put(LED1, 1);
-                    state = 4; // back to dispensing
+                    state = 1; // back to dispensing
                 }
         }
     }
